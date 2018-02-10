@@ -26,6 +26,9 @@ public class PetDbHelper extends SQLiteOpenHelper {
     public PetDbHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
+    public PetDbHelper(Context context) {
+        super(context, DbName, null, Version);
+    }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
