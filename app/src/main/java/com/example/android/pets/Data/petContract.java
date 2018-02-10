@@ -3,7 +3,7 @@ package com.example.android.pets.Data;
 import android.provider.BaseColumns;
 
 /**this is contract for Data Pets in the app
- *
+ *this's schema of the database
  * Created by khalid on 2/10/2018.
  */
 
