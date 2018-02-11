@@ -15,6 +15,7 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -25,18 +26,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.pets.Data.PetDbHelper;
 import com.example.android.pets.Data.petContract.petsEntry;
+
 /**
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity {
+    // To access our database, we instantiate our subclass of SQLiteOpenHelper
+    // and pass the context, which is the current activity.
+    PetDbHelper mdbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
+
+        mdbHelper = new PetDbHelper(this);
 
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -47,14 +55,13 @@ public class CatalogActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        displayDatabaseInfo(); }
-    private void displayDatabaseInfo() {
-        // To access our database, we instantiate our subclass of SQLiteOpenHelper
-        // and pass the context, which is the current activity.
-        PetDbHelper mDbHelper = new PetDbHelper(this);
+        displayDatabaseInfo();
+    }
 
-        // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+    private void displayDatabaseInfo() {
+
+        // Create and/or open a database to read from @pram mdbHelper
+        SQLiteDatabase db = mdbHelper.getReadableDatabase();
 
         // Perform this raw SQL query "SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
@@ -85,13 +92,35 @@ public class CatalogActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
-                // Do nothing for now
+                insertPet();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
-                // Do nothing for now
+                deletePets();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void deletePets() {
+
+        SQLiteDatabase database = mdbHelper.getWritableDatabase();
+        database.delete(petsEntry.TABLE_NAME, "1", null);
+        displayDatabaseInfo();
+    }
+//to insert dummy data in the database
+    private void insertPet() {
+        SQLiteDatabase database = mdbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(petsEntry.COLUMN_NAME_NAME, "Toto");
+        values.put(petsEntry.COLUMN_NAME_BREED, "Terrier");
+        values.put(petsEntry.COLUMN_NAME_GENDER, 1);
+        values.put(petsEntry.COLUMN_NAME_WEIGHT, 7);
+
+
+        long id = database.insert(petsEntry.TABLE_NAME, null, values);
+        if (id != -1) displayDatabaseInfo();
+        else Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
     }
 }
