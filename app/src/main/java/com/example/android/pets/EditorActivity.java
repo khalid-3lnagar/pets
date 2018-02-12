@@ -15,6 +15,8 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +28,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import com.example.android.pets.Data.PetDbHelper;
 
 import static com.example.android.pets.Data.petContract.petsEntry;
 
@@ -34,23 +39,31 @@ import static com.example.android.pets.Data.petContract.petsEntry;
  */
 public class EditorActivity extends AppCompatActivity {
 
-    /** EditText field to enter the pet's name */
+    /**
+     * EditText field to enter the pet's name
+     */
     private EditText mNameEditText;
 
-    /** EditText field to enter the pet's breed */
+    /**
+     * EditText field to enter the pet's breed
+     */
     private EditText mBreedEditText;
 
-    /** EditText field to enter the pet's weight */
+    /**
+     * EditText field to enter the pet's weight
+     */
     private EditText mWeightEditText;
 
-    /** EditText field to enter the pet's gender */
+    /**
+     * EditText field to enter the pet's gender
+     */
     private Spinner mGenderSpinner;
 
     /**
      * Gender of the pet. The possible values are:
      * 0 for unknown gender, 1 for male, 2 for female.
      */
-    private int mGender =petsEntry.GENDER_UNKNOWN;
+    private int mGender = petsEntry.GENDER_UNKNOWN;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,13 +126,39 @@ public class EditorActivity extends AppCompatActivity {
         return true;
     }
 
+    private void insertPet() {
+        String mName = mNameEditText.getText().toString().trim();
+        String mBreed = mBreedEditText.getText().toString().trim();
+        int mWeight = Integer.parseInt(mWeightEditText.getText().toString().trim());
+
+        PetDbHelper mdbHelper = new PetDbHelper(getApplicationContext());
+        SQLiteDatabase database = mdbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(petsEntry.COLUMN_NAME_NAME, mName);
+        values.put(petsEntry.COLUMN_NAME_BREED, mBreed);
+        values.put(petsEntry.COLUMN_NAME_GENDER, mGender);
+        values.put(petsEntry.COLUMN_NAME_WEIGHT, mWeight);
+
+
+        long id = database.insert(petsEntry.TABLE_NAME, null, values);
+        if (id != -1){
+            Toast.makeText(this,  "Pet saved with "+id, Toast.LENGTH_SHORT).show();
+            finish();
+        }
+        else {
+            Toast.makeText(this, "Error with saving pet", Toast.LENGTH_SHORT).show();
+        finish();
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Do nothing for now
+                insertPet();
+                finish();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
