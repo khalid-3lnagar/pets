@@ -63,9 +63,11 @@ public class CatalogActivity extends AppCompatActivity {
         // Create and/or open a database to read from @pram mdbHelper
         SQLiteDatabase db = mdbHelper.getReadableDatabase();
 
-        // Perform this raw SQL query "SELECT * FROM pets"
-        // to get a Cursor that contains all rows from the pets table.
-        Cursor cursor = db.rawQuery("SELECT * FROM " + petsEntry.TABLE_NAME, null);
+
+        Cursor cursor = db.query(
+                petsEntry.TABLE_NAME,petsEntry.TABLE_COLUMNS,
+                null, null, null, null, null
+        );
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
@@ -107,6 +109,7 @@ public class CatalogActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
     //to delete all pets data in the database
     private void deletePets() {
 
@@ -114,7 +117,8 @@ public class CatalogActivity extends AppCompatActivity {
         database.delete(petsEntry.TABLE_NAME, "1", null);
         displayDatabaseInfo();
     }
-//to insert dummy data in the database
+
+    //to insert dummy data in the database
     private void insertPet() {
         SQLiteDatabase database = mdbHelper.getWritableDatabase();
 
