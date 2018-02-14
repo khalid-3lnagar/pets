@@ -65,14 +65,37 @@ public class CatalogActivity extends AppCompatActivity {
 
 
         Cursor cursor = db.query(
-                petsEntry.TABLE_NAME,petsEntry.TABLE_COLUMNS,
+                petsEntry.TABLE_NAME, petsEntry.TABLE_COLUMNS,
                 null, null, null, null, null
         );
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
             TextView displayView = (TextView) findViewById(R.id.text_view_pet);
-            displayView.setText("Number of rows in pets database table: " + cursor.getCount());
+            displayView.setText("Number of rows in pets database table: " + cursor.getCount() + "\n ");
+            int[] columnsIndexes;
+
+            columnsIndexes = new int[petsEntry.TABLE_COLUMNS.length ];
+            //display the column names in the next line of ther number
+
+            int i = 0;
+
+            for (String s : petsEntry.TABLE_COLUMNS) {
+                columnsIndexes[i] = cursor.getColumnIndex(s);
+                if (s != petsEntry.TABLE_COLUMNS[petsEntry.TABLE_COLUMNS.length - 1])
+                    displayView.append(s + " - ");
+                else displayView.append(s+"\n\n");
+                i++;
+            }
+            while (cursor.moveToNext()) {
+                for (int r:columnsIndexes){
+                    if (r != columnsIndexes[columnsIndexes.length - 1])
+                        displayView.append(cursor.getString(r) + " - ");
+                    else displayView.append(cursor.getString(r)+"\n");
+                }
+            }
+
+
         } finally {
             // Always close the cursor when you're done reading from it. This releases all its
             // resources and makes it invalid.
