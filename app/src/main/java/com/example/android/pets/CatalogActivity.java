@@ -28,8 +28,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.pets.Data.PetDbHelper;
-import com.example.android.pets.Data.petContract.petsEntry;
+import com.example.android.pets.data.PetDbHelper;
+import com.example.android.pets.data.petContract.petsEntry;
 
 /**
  * Displays list of pets that were entered and stored in the app.

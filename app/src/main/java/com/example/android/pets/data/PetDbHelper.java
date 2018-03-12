@@ -1,10 +1,10 @@
-package com.example.android.pets.Data;
+package com.example.android.pets.data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import static com.example.android.pets.Data.petContract.petsEntry;
+import static com.example.android.pets.data.petContract.petsEntry;
 
 /**
  * Created by khali on 2/10/2018.

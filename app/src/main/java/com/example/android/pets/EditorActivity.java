@@ -30,9 +30,9 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.android.pets.Data.PetDbHelper;
+import com.example.android.pets.data.PetDbHelper;
 
-import static com.example.android.pets.Data.petContract.petsEntry;
+import static com.example.android.pets.data.petContract.petsEntry;
 
 /**
  * Allows user to create a new pet or edit an existing one.
