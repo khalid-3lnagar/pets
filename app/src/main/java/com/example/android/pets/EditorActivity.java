@@ -127,27 +127,47 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void insertPet() {
-        String mName = mNameEditText.getText().toString().trim();
-        String mBreed = mBreedEditText.getText().toString().trim();
-        int mWeight = Integer.parseInt(mWeightEditText.getText().toString().trim());
+        String mName, mBreed;
+        int mWeight;
+        if (!TextUtils.isEmpty(mNameEditText.getText()))
+            mName = mNameEditText.getText().toString().trim();
+        else mName = "unknown";
+        if (!TextUtils.isEmpty(mBreedEditText.getText()))
+            mBreed = mBreedEditText.getText().toString().trim();
+        else mBreed = "unknown";
+        if (!TextUtils.isEmpty(mWeightEditText.getText()))
+            mWeight = Integer.parseInt(mWeightEditText.getText().toString().trim());
 
-        PetDbHelper mdbHelper = new PetDbHelper(getApplicationContext());
-        SQLiteDatabase database = mdbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(petsEntry.COLUMN_NAME_NAME, mName);
-        values.put(petsEntry.COLUMN_NAME_BREED, mBreed);
-        values.put(petsEntry.COLUMN_NAME_GENDER, mGender);
-        values.put(petsEntry.COLUMN_NAME_WEIGHT, mWeight);
+        else mWeight = 0;
 
 
-        long id = database.insert(petsEntry.TABLE_NAME, null, values);
-        if (id != -1){
-            Toast.makeText(this,  "Pet saved with "+id, Toast.LENGTH_SHORT).show();
-            finish();
-        }
-        else {
-            Toast.makeText(this, "Error with saving pet", Toast.LENGTH_SHORT).show();
-        finish();
+        if (
+                TextUtils.isEmpty(mNameEditText.getText()) &&
+                        TextUtils.isEmpty(mBreedEditText.getText()) &&
+                        TextUtils.isEmpty(mWeightEditText.getText())) {
+            Toast.makeText(this, "Error with saving pet \n The Data is Empty", Toast.LENGTH_SHORT).show();
+
+
+
+        } else {
+
+            PetDbHelper mdbHelper = new PetDbHelper(getApplicationContext());
+            SQLiteDatabase database = mdbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(petsEntry.COLUMN_NAME_NAME, mName);
+            values.put(petsEntry.COLUMN_NAME_BREED, mBreed);
+            values.put(petsEntry.COLUMN_NAME_GENDER, mGender);
+            values.put(petsEntry.COLUMN_NAME_WEIGHT, mWeight);
+
+
+            long id = database.insert(petsEntry.TABLE_NAME, null, values);
+            if (id != -1) {
+                Toast.makeText(this, "Pet saved with " + id, Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(this, "Error with saving pet", Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
     }
 
@@ -158,7 +178,7 @@ public class EditorActivity extends AppCompatActivity {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 insertPet();
-                finish();
+
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
