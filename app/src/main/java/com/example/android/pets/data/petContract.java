@@ -1,5 +1,6 @@
 package com.example.android.pets.data;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
@@ -12,8 +13,16 @@ public final class petContract {
     private petContract() {
     }
 
+    //authority for the content provider which is the app package name
+    public final static String CONTENT_AUTHORITY = "com.example.android.pets";
+    //base content uri for the entire provider
+    public final static Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    //path string for the pets table
+    public final static String PATH_PETS = "pets";
 
     public static abstract class petsEntry implements BaseColumns {
+        //the content uri for the pets table
+        public final static Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PETS);
         public final static String TABLE_NAME = "pets";
         // columns names
         public final static String _ID = BaseColumns._ID;
