@@ -16,7 +16,7 @@
 package com.example.android.pets;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -29,8 +29,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
-import com.example.android.pets.data.PetDbHelper;
 
 import static com.example.android.pets.data.petContract.petsEntry;
 
@@ -129,15 +127,17 @@ public class EditorActivity extends AppCompatActivity {
     private void insertPet() {
         String mName, mBreed;
         int mWeight;
+
         if (!TextUtils.isEmpty(mNameEditText.getText()))
             mName = mNameEditText.getText().toString().trim();
         else mName = "unknown";
+
         if (!TextUtils.isEmpty(mBreedEditText.getText()))
             mBreed = mBreedEditText.getText().toString().trim();
         else mBreed = "unknown";
+
         if (!TextUtils.isEmpty(mWeightEditText.getText()))
             mWeight = Integer.parseInt(mWeightEditText.getText().toString().trim());
-
         else mWeight = 0;
 
 
@@ -148,26 +148,23 @@ public class EditorActivity extends AppCompatActivity {
             Toast.makeText(this, "Error with saving pet \n The Data is Empty", Toast.LENGTH_SHORT).show();
 
 
-
         } else {
-
-            PetDbHelper mdbHelper = new PetDbHelper(getApplicationContext());
-            SQLiteDatabase database = mdbHelper.getWritableDatabase();
+            //get the data and put it in the ContentValues
             ContentValues values = new ContentValues();
             values.put(petsEntry.COLUMN_NAME_NAME, mName);
             values.put(petsEntry.COLUMN_NAME_BREED, mBreed);
             values.put(petsEntry.COLUMN_NAME_GENDER, mGender);
             values.put(petsEntry.COLUMN_NAME_WEIGHT, mWeight);
+            //insert the values in the database using the resolver
+            //and make toast say to the user that the pet is saved
+            //also finish the Activity and return to the CatalogActivity
+
+            Uri newUri = getContentResolver().insert(petsEntry.CONTENT_URI, values);
+            if (newUri == null)
+                Toast.makeText(this, R.string.error_with_saving, Toast.LENGTH_SHORT).show();
+            else Toast.makeText(this, R.string.pet_saved, Toast.LENGTH_SHORT).show();
 
 
-            long id = database.insert(petsEntry.TABLE_NAME, null, values);
-            if (id != -1) {
-                Toast.makeText(this, "Pet saved with " + id, Toast.LENGTH_SHORT).show();
-                finish();
-            } else {
-                Toast.makeText(this, "Error with saving pet", Toast.LENGTH_SHORT).show();
-                finish();
-            }
         }
     }
 
@@ -178,7 +175,7 @@ public class EditorActivity extends AppCompatActivity {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 insertPet();
-
+                finish();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:

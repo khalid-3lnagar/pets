@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import static com.example.android.pets.data.petContract.petsEntry.TABLE_NAME;
 import static com.example.android.pets.data.petContract.petsEntry._ID;
@@ -20,13 +21,13 @@ import static com.example.android.pets.data.petContract.petsEntry._ID;
 public class PetProvider extends ContentProvider {
 
     private static final String LOG = PetProvider.class.getSimpleName();
-    private static final int PETS = 100,
-            PET_ID = 101;
-    private static final UriMatcher petsUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    private static final int PETS = 100;
+    private static final int PET_ID = 101;
+    private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        petsUriMatcher.addURI(petContract.CONTENT_AUTHORITY,petContract.PATH_PETS,PETS);
-        petsUriMatcher.addURI(petContract.CONTENT_AUTHORITY+"/#",petContract.PATH_PETS,PET_ID);
+        sUriMatcher.addURI(petContract.CONTENT_AUTHORITY, petContract.PATH_PETS, PETS);
+        sUriMatcher.addURI(petContract.CONTENT_AUTHORITY + "/#", petContract.PATH_PETS, PET_ID);
 
 
     }
@@ -55,15 +56,14 @@ public class PetProvider extends ContentProvider {
         Cursor cursor;
 
         // Figure out if the URI matcher can match the URI to a specific code
-        int match = petsUriMatcher.match(uri);
+        int match = sUriMatcher.match(uri);
         switch (match) {
             case PETS:
                 // For the PETS code, query the pets table directly with the given
                 // projection, selection, selection arguments, and sort order. The cursor
                 // could contain multiple rows of the pets table.
-                // TODO: Perform database query on pets table
-                cursor =database.query(TABLE_NAME,projection,selection,selectionArgs,
-                        null,null,sortOrder);
+                cursor = database.query(TABLE_NAME, projection, selection, selectionArgs,
+                        null, null, sortOrder);
                 break;
             case PET_ID:
                 // For the PET_ID code, extract out the ID from the URI.
@@ -75,7 +75,7 @@ public class PetProvider extends ContentProvider {
                 // arguments that will fill in the "?". Since we have 1 question mark in the
                 // selection, we have 1 String in the selection arguments' String array.
                 selection = _ID + "=?";
-                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
 
                 // This will perform a query on the pets table where the _id equals 3 to return a
                 // Cursor containing that row of the table.
@@ -87,6 +87,7 @@ public class PetProvider extends ContentProvider {
         }
         return cursor;
     }
+
     /**
      * Returns the MIME type of data for the content URI.
      */
@@ -99,10 +100,35 @@ public class PetProvider extends ContentProvider {
     /**
      * Insert new data into the provider with the given ContentValues.
      */
-    @Nullable
     @Override
-    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+    public Uri insert(Uri uri, ContentValues contentValues) {
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case PETS:
+                return insertPet(uri, contentValues);
+            default:
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
+        }
+    }
+
+    /**
+     * Insert a pet into the database with the given content values. Return the new content URI
+     * for that specific row in the database.
+     */
+    private Uri insertPet(Uri uri, ContentValues values) {
+
+
+        long id = mDbHelper.getWritableDatabase().insert(petContract.petsEntry.TABLE_NAME, null, values);
+
+        if (id != -1)
+            // Once we know the ID of the new row in the table,
+            // return the new URI with the ID appended to the end of it
+            return ContentUris.withAppendedId(uri, id);
+        else {
+            Log.e(LOG, "error with inserting the pet for " + uri);
+            return null;
+        }
+
     }
 
     /**

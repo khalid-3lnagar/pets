@@ -19,9 +19,11 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,14 +62,10 @@ public class CatalogActivity extends AppCompatActivity {
 
     private void displayDatabaseInfo() {
 
-        // Create and/or open a database to read from @pram mdbHelper
-        SQLiteDatabase db = mdbHelper.getReadableDatabase();
+        //get the data from the provider
+        Cursor cursor = getContentResolver().query(petsEntry.CONTENT_URI, petsEntry.TABLE_COLUMNS,
+                null, null, null);
 
-
-        Cursor cursor = db.query(
-                petsEntry.TABLE_NAME, petsEntry.TABLE_COLUMNS,
-                null, null, null, null, null
-        );
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
@@ -75,7 +73,7 @@ public class CatalogActivity extends AppCompatActivity {
             displayView.setText("Number of rows in pets database table: " + cursor.getCount() + "\n ");
             int[] columnsIndexes;
 
-            columnsIndexes = new int[petsEntry.TABLE_COLUMNS.length ];
+            columnsIndexes = new int[petsEntry.TABLE_COLUMNS.length];
             //display the column names in the next line of ther number
 
             int i = 0;
@@ -84,14 +82,14 @@ public class CatalogActivity extends AppCompatActivity {
                 columnsIndexes[i] = cursor.getColumnIndex(s);
                 if (s != petsEntry.TABLE_COLUMNS[petsEntry.TABLE_COLUMNS.length - 1])
                     displayView.append(s + " - ");
-                else displayView.append(s+"\n\n");
+                else displayView.append(s + "\n\n");
                 i++;
             }
             while (cursor.moveToNext()) {
-                for (int r:columnsIndexes){
+                for (int r : columnsIndexes) {
                     if (r != columnsIndexes[columnsIndexes.length - 1])
                         displayView.append(cursor.getString(r) + " - ");
-                    else displayView.append(cursor.getString(r)+"\n");
+                    else displayView.append(cursor.getString(r) + "\n");
                 }
             }
 
@@ -143,17 +141,22 @@ public class CatalogActivity extends AppCompatActivity {
 
     //to insert dummy data in the database
     private void insertPet() {
-        SQLiteDatabase database = mdbHelper.getWritableDatabase();
-
+        //put dummy data in a ContentValues
         ContentValues values = new ContentValues();
         values.put(petsEntry.COLUMN_NAME_NAME, "Toto");
         values.put(petsEntry.COLUMN_NAME_BREED, "Terrier");
         values.put(petsEntry.COLUMN_NAME_GENDER, 1);
         values.put(petsEntry.COLUMN_NAME_WEIGHT, 7);
 
+        //insert the data inside the database
+        try {
+            Uri newPetUri = getContentResolver().insert(petsEntry.CONTENT_URI, values);
+            displayDatabaseInfo();
+            Log.d("catalogActivity", "uri is " + newPetUri);
+            Toast.makeText(this, "dummy data inserted ", Toast.LENGTH_SHORT).show();
 
-        long id = database.insert(petsEntry.TABLE_NAME, null, values);
-        if (id != -1) displayDatabaseInfo();
-        else Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.e("catalogActivity", e.getMessage());
+        }
     }
 }
