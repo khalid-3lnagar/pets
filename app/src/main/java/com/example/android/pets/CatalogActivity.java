@@ -143,10 +143,10 @@ public class CatalogActivity extends AppCompatActivity {
     private void insertPet() {
         //put dummy data in a ContentValues
         ContentValues values = new ContentValues();
-        values.put(petsEntry.COLUMN_NAME_NAME, "Toto");
-        values.put(petsEntry.COLUMN_NAME_BREED, "Terrier");
-        values.put(petsEntry.COLUMN_NAME_GENDER, 1);
-        values.put(petsEntry.COLUMN_NAME_WEIGHT, 7);
+        values.put(petsEntry.COLUMN_PET_NAME, "Toto");
+        values.put(petsEntry.COLUMN_PET_BREED, "Terrier");
+        values.put(petsEntry.COLUMN_PET_GENDER, 1);
+        values.put(petsEntry.COLUMN_PET_WEIGHT, 7);
 
         //insert the data inside the database
         try {

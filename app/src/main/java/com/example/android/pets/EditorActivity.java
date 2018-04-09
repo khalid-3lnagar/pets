@@ -151,10 +151,10 @@ public class EditorActivity extends AppCompatActivity {
         } else {
             //get the data and put it in the ContentValues
             ContentValues values = new ContentValues();
-            values.put(petsEntry.COLUMN_NAME_NAME, mName);
-            values.put(petsEntry.COLUMN_NAME_BREED, mBreed);
-            values.put(petsEntry.COLUMN_NAME_GENDER, mGender);
-            values.put(petsEntry.COLUMN_NAME_WEIGHT, mWeight);
+            values.put(petsEntry.COLUMN_PET_NAME, mName);
+            values.put(petsEntry.COLUMN_PET_BREED, mBreed);
+            values.put(petsEntry.COLUMN_PET_GENDER, mGender);
+            values.put(petsEntry.COLUMN_PET_WEIGHT, mWeight);
             //insert the values in the database using the resolver
             //and make toast say to the user that the pet is saved
             //also finish the Activity and return to the CatalogActivity

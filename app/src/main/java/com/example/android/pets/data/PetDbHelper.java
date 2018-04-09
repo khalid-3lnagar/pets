@@ -14,10 +14,10 @@ public class PetDbHelper extends SQLiteOpenHelper {
     //SQLite command to create table inside the Database
     private static final String CREATE_TABLE = "CREATE TABLE " + petsEntry.TABLE_NAME
             + '(' + petsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT ," +
-            petsEntry.COLUMN_NAME_NAME + " TEXT NOT NULL ," +
-            petsEntry.COLUMN_NAME_BREED + " TEXT ," +
-            petsEntry.COLUMN_NAME_GENDER + " INTEGER NOT NULL," +
-            petsEntry.COLUMN_NAME_WEIGHT + " INTEGER NOT NULL DEFAULT 0 );";
+            petsEntry.COLUMN_PET_NAME + " TEXT NOT NULL ," +
+            petsEntry.COLUMN_PET_BREED + " TEXT ," +
+            petsEntry.COLUMN_PET_GENDER + " INTEGER NOT NULL," +
+            petsEntry.COLUMN_PET_WEIGHT + " INTEGER NOT NULL DEFAULT 0 );";
 
 
     static int Version = 1;

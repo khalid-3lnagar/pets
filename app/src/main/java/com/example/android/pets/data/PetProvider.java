@@ -11,7 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import static com.example.android.pets.data.petContract.petsEntry.TABLE_NAME;
+import static com.example.android.pets.data.petContract.petsEntry;
 import static com.example.android.pets.data.petContract.petsEntry._ID;
 
 /**
@@ -62,7 +62,7 @@ public class PetProvider extends ContentProvider {
                 // For the PETS code, query the pets table directly with the given
                 // projection, selection, selection arguments, and sort order. The cursor
                 // could contain multiple rows of the pets table.
-                cursor = database.query(TABLE_NAME, projection, selection, selectionArgs,
+                cursor = database.query(petsEntry.TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
                 break;
             case PET_ID:
@@ -79,7 +79,7 @@ public class PetProvider extends ContentProvider {
 
                 // This will perform a query on the pets table where the _id equals 3 to return a
                 // Cursor containing that row of the table.
-                cursor = database.query(TABLE_NAME, projection, selection, selectionArgs,
+                cursor = database.query(petsEntry.TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
                 break;
             default:
@@ -116,7 +116,23 @@ public class PetProvider extends ContentProvider {
      * for that specific row in the database.
      */
     private Uri insertPet(Uri uri, ContentValues values) {
+        //              Sanity Checks
 
+        String name = values.getAsString(petsEntry.COLUMN_PET_NAME);
+        //check if the pet name is null.if so throw Exception
+        if (name == null) throw new IllegalArgumentException("the name should be not null");
+
+        Integer weight = values.getAsInteger(petsEntry.COLUMN_PET_WEIGHT);
+        //check if the weight is null or negative. if so throw Exception
+        if (weight == null || weight < 0)
+            throw new IllegalArgumentException("weight should'nt be negative");
+
+        Integer gender = values.getAsInteger(petsEntry.COLUMN_PET_GENDER);
+        //check if the gender is{unknown(0),male(1),femaleP(2)}if else throw Exception
+        if (gender == null || petsEntry.isValidGender(gender))
+            throw new IllegalArgumentException("gender error ");
+        //              *******
+        //after the Sanity Checks if every thing is fine insert the new pet
 
         long id = mDbHelper.getWritableDatabase().insert(petContract.petsEntry.TABLE_NAME, null, values);
 
