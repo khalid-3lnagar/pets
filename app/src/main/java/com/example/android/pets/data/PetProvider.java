@@ -11,8 +11,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import static com.example.android.pets.data.petContract.petsEntry;
-import static com.example.android.pets.data.petContract.petsEntry._ID;
+import static com.example.android.pets.data.petContract.PetEntry;
+import static com.example.android.pets.data.petContract.PetEntry._ID;
 
 /**
  * Created by khalid-Elnagar on 2/18/2018.
@@ -62,7 +62,7 @@ public class PetProvider extends ContentProvider {
                 // For the PETS code, query the pets table directly with the given
                 // projection, selection, selection arguments, and sort order. The cursor
                 // could contain multiple rows of the pets table.
-                cursor = database.query(petsEntry.TABLE_NAME, projection, selection, selectionArgs,
+                cursor = database.query(PetEntry.TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
                 break;
             case PET_ID:
@@ -79,7 +79,7 @@ public class PetProvider extends ContentProvider {
 
                 // This will perform a query on the pets table where the _id equals 3 to return a
                 // Cursor containing that row of the table.
-                cursor = database.query(petsEntry.TABLE_NAME, projection, selection, selectionArgs,
+                cursor = database.query(PetEntry.TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
                 break;
             default:
@@ -116,25 +116,12 @@ public class PetProvider extends ContentProvider {
      * for that specific row in the database.
      */
     private Uri insertPet(Uri uri, ContentValues values) {
-        //              Sanity Checks
-
-        String name = values.getAsString(petsEntry.COLUMN_PET_NAME);
-        //check if the pet name is null.if so throw Exception
-        if (name == null) throw new IllegalArgumentException("the name should be not null");
-
-        Integer weight = values.getAsInteger(petsEntry.COLUMN_PET_WEIGHT);
-        //check if the weight is null or negative. if so throw Exception
-        if (weight == null || weight < 0)
-            throw new IllegalArgumentException("weight should'nt be negative");
-
-        Integer gender = values.getAsInteger(petsEntry.COLUMN_PET_GENDER);
-        //check if the gender is{unknown(0),male(1),femaleP(2)}if else throw Exception
-        if (gender == null || petsEntry.isValidGender(gender))
-            throw new IllegalArgumentException("gender error ");
-        //              *******
+        //first check the sanity of the data
+        checkSanity(values, false);
         //after the Sanity Checks if every thing is fine insert the new pet
 
-        long id = mDbHelper.getWritableDatabase().insert(petContract.petsEntry.TABLE_NAME, null, values);
+        long id = mDbHelper.getWritableDatabase()
+                .insert(PetEntry.TABLE_NAME, null, values);
 
         if (id != -1)
             // Once we know the ID of the new row in the table,
@@ -158,8 +145,77 @@ public class PetProvider extends ContentProvider {
     /**
      * Updates the data at the given selection and selection arguments, with the new ContentValues.
      */
+
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+    public int update(Uri uri, ContentValues contentValues, String selection,
+                      String[] selectionArgs) {
+
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case PETS:
+                return updatePet(uri, contentValues, selection, selectionArgs);
+            case PET_ID:
+                // For the PET_ID code, extract out the ID from the URI,
+                // so we know which row to update. Selection will be "_id=?" and selection
+                // arguments will be a String array containing the actual ID.
+                selection = PetEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                return updatePet(uri, contentValues, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Update is not supported for " + uri);
+        }
+    }
+
+    /**
+     * Update pets in the database with the given content values. Apply the changes to the rows
+     * specified in the selection and selection arguments (which could be 0 or 1 or more pets).
+     * Return the number of rows that were successfully updated.
+     */
+    private int updatePet(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        if (values.size() == 0) {
+            return 0;
+        }
+        int effectedRows = 0;
+        //first check the sanity of the data
+        checkSanity(values, true);
+
+        // TODO: Update the selected pets in the pets database table with the given ContentValues
+
+        effectedRows = mDbHelper.getWritableDatabase().update(PetEntry.TABLE_NAME, values, selection, selectionArgs);
+        Log.v("provider", "the number of effected rows is " + effectedRows);
+        // TODO: Return the number of rows that were affected
+
+        return effectedRows;
+    }
+
+    //              Sanity Checks
+    private void checkSanity(ContentValues values, boolean isUpdate) {
+
+
+        String name = values.getAsString(PetEntry.COLUMN_PET_NAME);
+        //check if the pet name is null. if so throw Exception
+        if (name == null)
+            if (isUpdate && !values.containsKey(PetEntry.COLUMN_PET_NAME)) {
+            } else
+                throw new IllegalArgumentException("the name should be not null");
+
+        Integer weight = values.getAsInteger(PetEntry.COLUMN_PET_WEIGHT);
+        //check if the weight is null or negative. if so throw Exception
+        if (weight == null || weight < 0)
+            if (isUpdate && !values.containsKey(PetEntry.COLUMN_PET_WEIGHT)) {
+            } else
+                throw new IllegalArgumentException("weight should'nt be negative");
+
+        Integer gender = values.getAsInteger(PetEntry.COLUMN_PET_GENDER);
+        //check if the gender is{unknown(0),male(1),femaleP(2)}if else throw Exception
+        if (gender == null || !PetEntry.isValidGender(gender))
+            //if is update do nothing
+            if (isUpdate && !values.containsKey(PetEntry.COLUMN_PET_WEIGHT)) {
+            } else
+                throw new IllegalArgumentException("gender error ");
+
     }
 }
+
+
+

@@ -20,7 +20,7 @@ public final class petContract {
     //path string for the pets table
     public final static String PATH_PETS = "pets";
 
-    public static abstract class petsEntry implements BaseColumns {
+    public static abstract class PetEntry implements BaseColumns {
         //the content uri for the pets table
         public final static Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PETS);
         public final static String TABLE_NAME = "pets";

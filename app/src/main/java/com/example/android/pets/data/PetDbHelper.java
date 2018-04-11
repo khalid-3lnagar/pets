@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import static com.example.android.pets.data.petContract.petsEntry;
+import static com.example.android.pets.data.petContract.PetEntry;
 
 /**
  * Created by khali on 2/10/2018.
@@ -12,16 +12,16 @@ import static com.example.android.pets.data.petContract.petsEntry;
 
 public class PetDbHelper extends SQLiteOpenHelper {
     //SQLite command to create table inside the Database
-    private static final String CREATE_TABLE = "CREATE TABLE " + petsEntry.TABLE_NAME
-            + '(' + petsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT ," +
-            petsEntry.COLUMN_PET_NAME + " TEXT NOT NULL ," +
-            petsEntry.COLUMN_PET_BREED + " TEXT ," +
-            petsEntry.COLUMN_PET_GENDER + " INTEGER NOT NULL," +
-            petsEntry.COLUMN_PET_WEIGHT + " INTEGER NOT NULL DEFAULT 0 );";
+    private static final String CREATE_TABLE = "CREATE TABLE " + PetEntry.TABLE_NAME
+            + '(' + PetEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT ," +
+            PetEntry.COLUMN_PET_NAME + " TEXT NOT NULL ," +
+            PetEntry.COLUMN_PET_BREED + " TEXT ," +
+            PetEntry.COLUMN_PET_GENDER + " INTEGER NOT NULL," +
+            PetEntry.COLUMN_PET_WEIGHT + " INTEGER NOT NULL DEFAULT 0 );";
 
 
-    static int Version = 1;
-    static String DbName = "pets.dp";
+    private static int Version = 1;
+    private static String DbName = "pets.dp";
 
     public PetDbHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -40,4 +40,5 @@ public class PetDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }
+
 }

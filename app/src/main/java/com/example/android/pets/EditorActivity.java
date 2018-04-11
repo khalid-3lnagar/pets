@@ -30,7 +30,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import static com.example.android.pets.data.petContract.petsEntry;
+import static com.example.android.pets.data.petContract.PetEntry;
 
 /**
  * Allows user to create a new pet or edit an existing one.
@@ -61,7 +61,7 @@ public class EditorActivity extends AppCompatActivity {
      * Gender of the pet. The possible values are:
      * 0 for unknown gender, 1 for male, 2 for female.
      */
-    private int mGender = petsEntry.GENDER_UNKNOWN;
+    private int mGender = PetEntry.GENDER_UNKNOWN;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,11 +99,11 @@ public class EditorActivity extends AppCompatActivity {
                 String selection = (String) parent.getItemAtPosition(position);
                 if (!TextUtils.isEmpty(selection)) {
                     if (selection.equals(getString(R.string.gender_male))) {
-                        mGender = petsEntry.GENDER_MALE; // Male
+                        mGender = PetEntry.GENDER_MALE; // Male
                     } else if (selection.equals(getString(R.string.gender_female))) {
-                        mGender = petsEntry.GENDER_FEMALE; // Female
+                        mGender = PetEntry.GENDER_FEMALE; // Female
                     } else {
-                        mGender = petsEntry.GENDER_UNKNOWN; // Unknown
+                        mGender = PetEntry.GENDER_UNKNOWN; // Unknown
                     }
                 }
             }
@@ -111,7 +111,7 @@ public class EditorActivity extends AppCompatActivity {
             // Because AdapterView is an abstract class, onNothingSelected must be defined
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                mGender = petsEntry.GENDER_UNKNOWN; // Unknown
+                mGender = PetEntry.GENDER_UNKNOWN; // Unknown
             }
         });
     }
@@ -151,15 +151,15 @@ public class EditorActivity extends AppCompatActivity {
         } else {
             //get the data and put it in the ContentValues
             ContentValues values = new ContentValues();
-            values.put(petsEntry.COLUMN_PET_NAME, mName);
-            values.put(petsEntry.COLUMN_PET_BREED, mBreed);
-            values.put(petsEntry.COLUMN_PET_GENDER, mGender);
-            values.put(petsEntry.COLUMN_PET_WEIGHT, mWeight);
+            values.put(PetEntry.COLUMN_PET_NAME, mName);
+            values.put(PetEntry.COLUMN_PET_BREED, mBreed);
+            values.put(PetEntry.COLUMN_PET_GENDER, mGender);
+            values.put(PetEntry.COLUMN_PET_WEIGHT, mWeight);
             //insert the values in the database using the resolver
             //and make toast say to the user that the pet is saved
             //also finish the Activity and return to the CatalogActivity
 
-            Uri newUri = getContentResolver().insert(petsEntry.CONTENT_URI, values);
+            Uri newUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
             if (newUri == null)
                 Toast.makeText(this, R.string.error_with_saving, Toast.LENGTH_SHORT).show();
             else Toast.makeText(this, R.string.pet_saved, Toast.LENGTH_SHORT).show();

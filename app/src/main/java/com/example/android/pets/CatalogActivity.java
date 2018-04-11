@@ -31,7 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.pets.data.PetDbHelper;
-import com.example.android.pets.data.petContract.petsEntry;
+import com.example.android.pets.data.petContract.PetEntry;
 
 /**
  * Displays list of pets that were entered and stored in the app.
@@ -63,7 +63,7 @@ public class CatalogActivity extends AppCompatActivity {
     private void displayDatabaseInfo() {
 
         //get the data from the provider
-        Cursor cursor = getContentResolver().query(petsEntry.CONTENT_URI, petsEntry.TABLE_COLUMNS,
+        Cursor cursor = getContentResolver().query(PetEntry.CONTENT_URI, PetEntry.TABLE_COLUMNS,
                 null, null, null);
 
         try {
@@ -73,14 +73,14 @@ public class CatalogActivity extends AppCompatActivity {
             displayView.setText("Number of rows in pets database table: " + cursor.getCount() + "\n ");
             int[] columnsIndexes;
 
-            columnsIndexes = new int[petsEntry.TABLE_COLUMNS.length];
+            columnsIndexes = new int[PetEntry.TABLE_COLUMNS.length];
             //display the column names in the next line of ther number
 
             int i = 0;
 
-            for (String s : petsEntry.TABLE_COLUMNS) {
+            for (String s : PetEntry.TABLE_COLUMNS) {
                 columnsIndexes[i] = cursor.getColumnIndex(s);
-                if (s != petsEntry.TABLE_COLUMNS[petsEntry.TABLE_COLUMNS.length - 1])
+                if (s != PetEntry.TABLE_COLUMNS[PetEntry.TABLE_COLUMNS.length - 1])
                     displayView.append(s + " - ");
                 else displayView.append(s + "\n\n");
                 i++;
@@ -135,7 +135,7 @@ public class CatalogActivity extends AppCompatActivity {
     private void deletePets() {
 
         SQLiteDatabase database = mdbHelper.getWritableDatabase();
-        database.delete(petsEntry.TABLE_NAME, "1", null);
+        database.delete(PetEntry.TABLE_NAME, "1", null);
         displayDatabaseInfo();
     }
 
@@ -143,14 +143,14 @@ public class CatalogActivity extends AppCompatActivity {
     private void insertPet() {
         //put dummy data in a ContentValues
         ContentValues values = new ContentValues();
-        values.put(petsEntry.COLUMN_PET_NAME, "Toto");
-        values.put(petsEntry.COLUMN_PET_BREED, "Terrier");
-        values.put(petsEntry.COLUMN_PET_GENDER, 1);
-        values.put(petsEntry.COLUMN_PET_WEIGHT, 7);
+        values.put(PetEntry.COLUMN_PET_NAME, "Toto");
+        values.put(PetEntry.COLUMN_PET_BREED, "Terrier");
+        values.put(PetEntry.COLUMN_PET_GENDER, 1);
+        values.put(PetEntry.COLUMN_PET_WEIGHT, 7);
 
         //insert the data inside the database
         try {
-            Uri newPetUri = getContentResolver().insert(petsEntry.CONTENT_URI, values);
+            Uri newPetUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
             displayDatabaseInfo();
             Log.d("catalogActivity", "uri is " + newPetUri);
             Toast.makeText(this, "dummy data inserted ", Toast.LENGTH_SHORT).show();
