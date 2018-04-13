@@ -137,9 +137,27 @@ public class PetProvider extends ContentProvider {
     /**
      * Delete the data at the given selection and selection arguments.
      */
+
+
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        //get the database
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case PETS:
+                //delete the rows that match the selection and selection Args
+                return database.delete(PetEntry.TABLE_NAME, selection, selectionArgs);
+
+            case PET_ID:
+                //delete single row that given in the uri
+                selection = PetEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                return database.delete(PetEntry.TABLE_NAME, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("error with deleting " + uri);
+        }
+
     }
 
     /**
