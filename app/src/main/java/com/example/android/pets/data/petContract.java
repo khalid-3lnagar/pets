@@ -1,5 +1,6 @@
 package com.example.android.pets.data;
 
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -24,6 +25,19 @@ public final class petContract {
         //the content uri for the pets table
         public final static Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PETS);
         public final static String TABLE_NAME = "pets";
+
+        /**
+         * the Content URI for {@link #CONTENT_URI} for list of pets.
+         */
+
+        public final static String CONTENT_LIST_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + '/' + CONTENT_AUTHORITY + '/' + PATH_PETS;
+        /**
+         * the Content URI for {@link #CONTENT_URI} for single of pet.
+         */
+
+        public final static String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + '/' + CONTENT_AUTHORITY + '/' + PATH_PETS;
         // columns names
         public final static String _ID = BaseColumns._ID;
         public final static String COLUMN_PET_NAME = "name";
