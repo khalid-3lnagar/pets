@@ -27,7 +27,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.android.pets.data.PetDbHelper;
@@ -40,6 +40,7 @@ public class CatalogActivity extends AppCompatActivity {
     // To access our database, we instantiate our subclass of SQLiteOpenHelper
     // and pass the context, which is the current activity.
     PetDbHelper mdbHelper;
+    PetCursorAdapter petsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,8 @@ public class CatalogActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
         displayDatabaseInfo();
     }
 
@@ -66,45 +69,20 @@ public class CatalogActivity extends AppCompatActivity {
         Cursor cursor = getContentResolver().query(PetEntry.CONTENT_URI, PetEntry.TABLE_COLUMNS,
                 null, null, null);
 
-        try {
-            // Display the number of rows in the Cursor (which reflects the number of rows in the
-            // pets table in the database).
-            TextView displayView = (TextView) findViewById(R.id.text_view_pet);
-            displayView.setText("Number of rows in pets database table: " + cursor.getCount() + "\n ");
-            int[] columnsIndexes;
-
-            columnsIndexes = new int[PetEntry.TABLE_COLUMNS.length];
-            //display the column names in the next line of ther number
-
-            int i = 0;
-
-            for (String s : PetEntry.TABLE_COLUMNS) {
-                columnsIndexes[i] = cursor.getColumnIndex(s);
-                if (s != PetEntry.TABLE_COLUMNS[PetEntry.TABLE_COLUMNS.length - 1])
-                    displayView.append(s + " - ");
-                else displayView.append(s + "\n\n");
-                i++;
-            }
-            while (cursor.moveToNext()) {
-                for (int r : columnsIndexes) {
-                    if (r != columnsIndexes[columnsIndexes.length - 1])
-                        displayView.append(cursor.getString(r) + " - ");
-                    else displayView.append(cursor.getString(r) + "\n");
-                }
-            }
 
 
-        } finally {
-            // Always close the cursor when you're done reading from it. This releases all its
-            // resources and makes it invalid.
-            cursor.close();
-        }
+            ListView listView = findViewById(R.id.list);
+            petsAdapter = new PetCursorAdapter(this, cursor);
+            listView.setAdapter(petsAdapter);
+
     }
+
 
     @Override
     protected void onStart() {
         super.onStart();
         displayDatabaseInfo();
+
     }
 
     @Override
@@ -137,6 +115,7 @@ public class CatalogActivity extends AppCompatActivity {
         SQLiteDatabase database = mdbHelper.getWritableDatabase();
         database.delete(PetEntry.TABLE_NAME, "1", null);
         displayDatabaseInfo();
+
     }
 
     //to insert dummy data in the database
@@ -152,6 +131,7 @@ public class CatalogActivity extends AppCompatActivity {
         try {
             Uri newPetUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
             displayDatabaseInfo();
+
             Log.d("catalogActivity", "uri is " + newPetUri);
             Toast.makeText(this, "dummy data inserted ", Toast.LENGTH_SHORT).show();
 
