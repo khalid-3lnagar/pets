@@ -15,8 +15,11 @@
  */
 package com.example.android.pets;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -36,7 +39,9 @@ import com.example.android.pets.data.petContract.PetEntry;
 /**
  * Displays list of pets that were entered and stored in the app.
  */
-public class CatalogActivity extends AppCompatActivity {
+public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private final int CURSOR_LOADER_ID = 0;
     // To access our database, we instantiate our subclass of SQLiteOpenHelper
     // and pass the context, which is the current activity.
     PetDbHelper mdbHelper;
@@ -59,24 +64,15 @@ public class CatalogActivity extends AppCompatActivity {
             }
         });
 
+        petsAdapter = new PetCursorAdapter(this, null);
 
-        displayDatabaseInfo();
-    }
-
-    private void displayDatabaseInfo() {
-
-        //get the data from the provider
-        Cursor cursor = getContentResolver().query(PetEntry.CONTENT_URI, PetEntry.TABLE_COLUMNS,
-                null, null, null);
-
-
-
-            ListView listView = findViewById(R.id.list);
-            petsAdapter = new PetCursorAdapter(this, cursor);
-            listView.setAdapter(petsAdapter);
-            //add the empty view to the list
-        View emptyView=findViewById(R.id.empty_view);
+        ListView listView = findViewById(R.id.list);
+        listView.setAdapter(petsAdapter);
+        //add the empty view to the list
+        View emptyView = findViewById(R.id.empty_view);
         listView.setEmptyView(emptyView);
+        getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
+
 
     }
 
@@ -84,7 +80,7 @@ public class CatalogActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        displayDatabaseInfo();
+        petsAdapter.notifyDataSetChanged();
 
     }
 
@@ -117,7 +113,7 @@ public class CatalogActivity extends AppCompatActivity {
 
         SQLiteDatabase database = mdbHelper.getWritableDatabase();
         database.delete(PetEntry.TABLE_NAME, "1", null);
-        displayDatabaseInfo();
+      petsAdapter.notifyDataSetChanged();
 
     }
 
@@ -133,7 +129,7 @@ public class CatalogActivity extends AppCompatActivity {
         //insert the data inside the database
         try {
             Uri newPetUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
-            displayDatabaseInfo();
+           petsAdapter.notifyDataSetChanged();
 
             Log.d("catalogActivity", "uri is " + newPetUri);
             Toast.makeText(this, "dummy data inserted ", Toast.LENGTH_SHORT).show();
@@ -141,5 +137,24 @@ public class CatalogActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("catalogActivity", e.getMessage());
         }
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(this, PetEntry.CONTENT_URI, PetEntry.TABLE_COLUMNS,
+                null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        petsAdapter.swapCursor(data);
+        petsAdapter.notifyDataSetChanged();
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        petsAdapter.swapCursor(null);
+
     }
 }
