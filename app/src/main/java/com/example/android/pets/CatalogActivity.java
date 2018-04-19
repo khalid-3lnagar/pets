@@ -113,7 +113,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         SQLiteDatabase database = mdbHelper.getWritableDatabase();
         database.delete(PetEntry.TABLE_NAME, "1", null);
-      petsAdapter.notifyDataSetChanged();
+        this.getContentResolver().notifyChange(PetEntry.CONTENT_URI, null);
 
     }
 
@@ -129,7 +129,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         //insert the data inside the database
         try {
             Uri newPetUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
-           petsAdapter.notifyDataSetChanged();
+
 
             Log.d("catalogActivity", "uri is " + newPetUri);
             Toast.makeText(this, "dummy data inserted ", Toast.LENGTH_SHORT).show();
