@@ -16,6 +16,7 @@
 package com.example.android.pets;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -30,11 +31,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.android.pets.data.PetDbHelper;
 import com.example.android.pets.data.petContract.PetEntry;
+
+import static com.example.android.pets.data.petContract.PetEntry.CONTENT_URI;
 
 /**
  * Displays list of pets that were entered and stored in the app.
@@ -68,9 +72,19 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         ListView listView = findViewById(R.id.list);
         listView.setAdapter(petsAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+                Uri uri = ContentUris.withAppendedId(CONTENT_URI, id);
+                intent.setData(uri);
+                startActivity(intent);
+            }
+        });
         //add the empty view to the list
         View emptyView = findViewById(R.id.empty_view);
         listView.setEmptyView(emptyView);
+
         getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
 
 
@@ -113,7 +127,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         SQLiteDatabase database = mdbHelper.getWritableDatabase();
         database.delete(PetEntry.TABLE_NAME, "1", null);
-        this.getContentResolver().notifyChange(PetEntry.CONTENT_URI, null);
+        this.getContentResolver().notifyChange(CONTENT_URI, null);
 
     }
 
@@ -128,7 +142,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         //insert the data inside the database
         try {
-            Uri newPetUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
+            Uri newPetUri = getContentResolver().insert(CONTENT_URI, values);
 
 
             Log.d("catalogActivity", "uri is " + newPetUri);
@@ -141,7 +155,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(this, PetEntry.CONTENT_URI, PetEntry.TABLE_COLUMNS,
+        return new CursorLoader(this, CONTENT_URI, PetEntry.TABLE_COLUMNS,
                 null, null, null);
     }
 
