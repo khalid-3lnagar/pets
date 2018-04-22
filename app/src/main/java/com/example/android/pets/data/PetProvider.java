@@ -27,7 +27,7 @@ public class PetProvider extends ContentProvider {
 
     static {
         sUriMatcher.addURI(petContract.CONTENT_AUTHORITY, petContract.PATH_PETS, PETS);
-        sUriMatcher.addURI(petContract.CONTENT_AUTHORITY + "/#", petContract.PATH_PETS, PET_ID);
+        sUriMatcher.addURI(petContract.CONTENT_AUTHORITY, petContract.PATH_PETS + "/#", PET_ID);
 
 
     }
