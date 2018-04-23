@@ -73,6 +73,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      */
     private int mGender = PetEntry.GENDER_UNKNOWN;
 
+    /**
+     * pet uri in case updating pet
+     */
+    private Uri mCurrentPetUri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,10 +89,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
         mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
-        Uri uri = getIntent().getData();
-        if (uri != null) {
+        mCurrentPetUri = getIntent().getData();
+        if (mCurrentPetUri != null) {
             setTitle("Edit Pet");
-            Log.v(TAG, uri.toString());
+            Log.v(TAG, mCurrentPetUri.toString());
             getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
 
         }
@@ -142,7 +147,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         return true;
     }
 
-    private void insertPet() {
+    private void savePet() {
         String mName, mBreed;
         int mWeight;
 
@@ -177,10 +182,19 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             //and make toast say to the user that the pet is saved
             //also finish the Activity and return to the CatalogActivity
 
-            Uri newUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
-            if (newUri == null)
-                Toast.makeText(this, R.string.error_with_saving, Toast.LENGTH_SHORT).show();
-            else Toast.makeText(this, R.string.pet_saved, Toast.LENGTH_SHORT).show();
+            //update case
+            if (mCurrentPetUri != null) {
+                int updatedPets = getContentResolver().update(mCurrentPetUri, values, null, null);
+                if (updatedPets > 0)
+                    Toast.makeText(this, R.string.pet_updated, Toast.LENGTH_SHORT).show();
+                else Toast.makeText(this, R.string.error_with_saving, Toast.LENGTH_SHORT).show();
+            } else {//insert case
+                Uri newUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
+                if (newUri == null)
+                    Toast.makeText(this, R.string.error_with_saving, Toast.LENGTH_SHORT).show();
+                else Toast.makeText(this, R.string.pet_saved, Toast.LENGTH_SHORT).show();
+
+            }
 
 
         }
@@ -192,7 +206,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                insertPet();
+                savePet();
                 finish();
                 return true;
             // Respond to a click on the "Delete" menu option
@@ -211,7 +225,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        return new CursorLoader(this, getIntent().getData(), PetEntry.TABLE_COLUMNS,
+        return new CursorLoader(this, mCurrentPetUri, PetEntry.TABLE_COLUMNS,
                 null, null, null);
 
 
