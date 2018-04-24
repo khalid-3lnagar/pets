@@ -153,51 +153,51 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         if (!TextUtils.isEmpty(mNameEditText.getText()))
             mName = mNameEditText.getText().toString().trim();
-        else mName = "unknown";
+        else {
+            Toast.makeText(this, R.string.error_with_saving, Toast.LENGTH_SHORT).show();
+            return;
+
+        }
 
         if (!TextUtils.isEmpty(mBreedEditText.getText()))
             mBreed = mBreedEditText.getText().toString().trim();
-        else mBreed = "unknown";
+        else {
+            Toast.makeText(this, R.string.error_with_saving, Toast.LENGTH_SHORT).show();
+
+            return;
+        }
+
 
         if (!TextUtils.isEmpty(mWeightEditText.getText()))
             mWeight = Integer.parseInt(mWeightEditText.getText().toString().trim());
         else mWeight = 0;
 
 
-        if (
-                TextUtils.isEmpty(mNameEditText.getText()) &&
-                        TextUtils.isEmpty(mBreedEditText.getText()) &&
-                        TextUtils.isEmpty(mWeightEditText.getText())) {
-            Toast.makeText(this, "Error with saving pet \n The Data is Empty", Toast.LENGTH_SHORT).show();
+        //get the data and put it in the ContentValues
+        ContentValues values = new ContentValues();
+        values.put(PetEntry.COLUMN_PET_NAME, mName);
+        values.put(PetEntry.COLUMN_PET_BREED, mBreed);
+        values.put(PetEntry.COLUMN_PET_GENDER, mGender);
+        values.put(PetEntry.COLUMN_PET_WEIGHT, mWeight);
+        //insert the values in the database using the resolver
+        //and make toast say to the user that the pet is saved
+        //also finish the Activity and return to the CatalogActivity
 
-
-        } else {
-            //get the data and put it in the ContentValues
-            ContentValues values = new ContentValues();
-            values.put(PetEntry.COLUMN_PET_NAME, mName);
-            values.put(PetEntry.COLUMN_PET_BREED, mBreed);
-            values.put(PetEntry.COLUMN_PET_GENDER, mGender);
-            values.put(PetEntry.COLUMN_PET_WEIGHT, mWeight);
-            //insert the values in the database using the resolver
-            //and make toast say to the user that the pet is saved
-            //also finish the Activity and return to the CatalogActivity
-
-            //update case
-            if (mCurrentPetUri != null) {
-                int updatedPets = getContentResolver().update(mCurrentPetUri, values, null, null);
-                if (updatedPets > 0)
-                    Toast.makeText(this, R.string.pet_updated, Toast.LENGTH_SHORT).show();
-                else Toast.makeText(this, R.string.error_with_saving, Toast.LENGTH_SHORT).show();
-            } else {//insert case
-                Uri newUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
-                if (newUri == null)
-                    Toast.makeText(this, R.string.error_with_saving, Toast.LENGTH_SHORT).show();
-                else Toast.makeText(this, R.string.pet_saved, Toast.LENGTH_SHORT).show();
-
-            }
-
+        //update case
+        if (mCurrentPetUri != null) {
+            int updatedPets = getContentResolver().update(mCurrentPetUri, values, null, null);
+            if (updatedPets > 0)
+                Toast.makeText(this, R.string.pet_updated, Toast.LENGTH_SHORT).show();
+            else Toast.makeText(this, R.string.error_with_saving, Toast.LENGTH_SHORT).show();
+        } else {//insert case
+            Uri newUri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
+            if (newUri == null)
+                Toast.makeText(this, R.string.error_with_saving, Toast.LENGTH_SHORT).show();
+            else Toast.makeText(this, R.string.pet_saved, Toast.LENGTH_SHORT).show();
 
         }
+
+
     }
 
     @Override
@@ -234,7 +234,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         //go to the pet position
-        data.moveToPosition(0);
+        data.moveToFirst();
         //extract data from the cursor and update ui
         mNameEditText.setText(data.getString(data.getColumnIndex(PetEntry.COLUMN_PET_NAME)));
         mBreedEditText.setText(data.getString(data.getColumnIndex(PetEntry.COLUMN_PET_BREED)));
