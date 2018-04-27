@@ -127,6 +127,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             Log.v(TAG, mCurrentPetUri.toString());
             getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
 
+        } else {
+            invalidateOptionsMenu();
         }
         setupSpinner();
 
@@ -177,6 +179,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // This adds menu items to the app bar.
         getMenuInflater().inflate(R.menu.menu_editor, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (mCurrentPetUri == null) {
+            //if the activity in insert mode no need for the delete option menu
+            MenuItem item = menu.findItem(R.id.action_delete);
+            item.setVisible(false);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     private void savePet() {
