@@ -68,4 +68,13 @@
 
     <!-- Subtitle text for the empty view that prompts the user to add a pet [CHAR LIMIT=50] -->
     <string name="empty_view_subtitle_text">Get started by adding a pet</string>
+    <!--                  dialog                              -->
+    <!--text for unsaved changes dialog message-->
+    <string name="unsaved_changes_dialog_msg">Discard your changes and quit editing?</string>
+    <!--text for stay in the activity and keep editing -->
+    <string name="keep_editing">Keep Editing</string>
+    <!--text for finish the activity -->
+    <string name="discard">Discard</string>
+
+
 </resources>

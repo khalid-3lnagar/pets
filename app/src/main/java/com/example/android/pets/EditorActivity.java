@@ -15,9 +15,12 @@
  */
 package com.example.android.pets;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -28,6 +31,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -77,19 +81,47 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      * pet uri in case updating pet
      */
     private Uri mCurrentPetUri;
+// OnTouchListener that listens for any user touches on a View, implying that they are modifying
+// the view, and we change the mPetHasChanged boolean to true.
 
+
+    /**
+     * the current state of the pet
+     * changed or not
+     */
+    private boolean mPetHasChanged = false;
+    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            mPetHasChanged = true;
+            return false;
+        }
+    };
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TAG = getLocalClassName();
         setContentView(R.layout.activity_editor);
 
+
         // Find all relevant views that we will need to read user input from
+        //and add to them mTouchListener
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
+        mNameEditText.setOnTouchListener(mTouchListener);
+
         mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
+        mBreedEditText.setOnTouchListener(mTouchListener);
+
         mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
+        mWeightEditText.setOnTouchListener(mTouchListener);
+
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
+        mGenderSpinner.setOnTouchListener(mTouchListener);
+
         mCurrentPetUri = getIntent().getData();
+
         if (mCurrentPetUri != null) {
             setTitle("Edit Pet");
             Log.v(TAG, mCurrentPetUri.toString());
@@ -215,8 +247,27 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 return true;
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
-                // Navigate back to parent activity (CatalogActivity)
-                NavUtils.navigateUpFromSameTask(this);
+                // If the pet hasn't changed, continue with navigating up to parent activity
+                // which is the {@link CatalogActivity}.
+                if (!mPetHasChanged) {
+                    NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                    return true;
+                }
+
+                // Otherwise if there are unsaved changes, setup a dialog to warn the user.
+                // Create a click listener to handle the user confirming that
+                // changes should be discarded.
+                DialogInterface.OnClickListener discardButtonClickListener =
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // User clicked "Discard" button, navigate to parent activity.
+                                NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                            }
+                        };
+
+                // Show a dialog that notifies the user they have unsaved changes
+                showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -251,4 +302,48 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mGenderSpinner.setSelection(PetEntry.GENDER_UNKNOWN);
 
     }
+
+    @Override
+    public void onBackPressed() {
+        //if the pet not changed continue with handling back button press
+        if (!mPetHasChanged) super.onBackPressed();
+
+        // Otherwise if there are unsaved changes, setup a dialog to warn the user.
+        // Create a click listener to handle the user confirming that changes should be discarded.
+        DialogInterface.OnClickListener mDialogOnClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // User clicked "Discard" button, navigate to parent activity.
+                finish();
+            }
+
+        };
+        //show the dialog that notifies the user they have unsaved changes
+        showUnsavedChangesDialog(mDialogOnClickListener);
+    }
+
+    private void showUnsavedChangesDialog(
+            DialogInterface.OnClickListener discardButtonClickListener) {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the positive and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.unsaved_changes_dialog_msg);
+        builder.setPositiveButton(R.string.discard, discardButtonClickListener);
+        builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // User clicked the "Keep editing" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+    }
+
 }
