@@ -93,7 +93,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            mPetHasChanged = true;
+        //if not in insert mode don't show the dialog and return back
+             if (mCurrentPetUri!=null)  mPetHasChanged = true;
             return false;
         }
     };
@@ -104,7 +105,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         super.onCreate(savedInstanceState);
         TAG = getLocalClassName();
         setContentView(R.layout.activity_editor);
-
+        mCurrentPetUri = getIntent().getData();
 
         // Find all relevant views that we will need to read user input from
         //and add to them mTouchListener
@@ -120,7 +121,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
         mGenderSpinner.setOnTouchListener(mTouchListener);
 
-        mCurrentPetUri = getIntent().getData();
+
 
         if (mCurrentPetUri != null) {
             setTitle("Edit Pet");

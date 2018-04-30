@@ -15,14 +15,15 @@
  */
 package com.example.android.pets;
 
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -124,10 +125,33 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
     //to delete all pets data in the database
     private void deletePets() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_all_dialog_msg);
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
-        SQLiteDatabase database = mdbHelper.getWritableDatabase();
-        database.delete(PetEntry.TABLE_NAME, "1", null);
-        this.getContentResolver().notifyChange(CONTENT_URI, null);
+                int deletedRows = getContentResolver().delete(PetEntry.CONTENT_URI, null, null);
+                if (deletedRows > 0) {
+                    Log.v("CatalogActivity", deletedRows + " rows deleted from pet database ");
+                    Toast.makeText(CatalogActivity.this, "All pets have been deleted", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(CatalogActivity.this, R.string.no_pets_to_delete, Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
 
     }
 
